@@ -432,3 +432,4 @@ env/
 bin/
 obj/
 
+output.txt
