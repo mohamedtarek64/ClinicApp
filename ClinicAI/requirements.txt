@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+python-multipart
+numpy
+pandas
+# Add model specific libraries here later (e.g., tensorflow, torch, scikit-learn)
