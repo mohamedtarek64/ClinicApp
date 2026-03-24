@@ -1,4 +1,4 @@
-﻿namespace Clinic_Project.Helpers
+namespace Clinic_Project.Helpers
 {
     public enum enErrorType
     {
@@ -7,7 +7,8 @@
         BadRequest,
         Conflict,
         Forbiden,
-        Unauthorized
+        Unauthorized,
+        InternalServerError
     }
     public class Result<T>
     {

@@ -1,63 +1,129 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Clinic_Project.Dtos.AI;
 using Clinic_Project.Helpers;
 using Clinic_Project.Services.Interfaces;
-using Newtonsoft.Json;
-using System.Net.Http.Headers;
+using Microsoft.Extensions.Logging;
 
 namespace Clinic_Project.Services.Implementations
 {
+    /// <summary>
+    /// Communicates with the ClinicAI FastAPI micro-service via HTTP.
+    ///
+    /// The HttpClient is injected by the typed-client factory registered in
+    /// Program.cs, which applies timeout and retry policies (Polly).
+    /// </summary>
     public class AIService : IAIService
     {
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
+        private readonly HttpClient    _http;
+        private readonly IConfiguration _config;
+        private readonly ILogger<AIService> _logger;
 
-        public AIService(HttpClient httpClient, IConfiguration configuration)
+        private static readonly JsonSerializerOptions _jsonOpts = new()
         {
-            _httpClient = httpClient;
-            _configuration = configuration;
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter() }
+        };
+
+        public AIService(
+            HttpClient         http,
+            IConfiguration     config,
+            ILogger<AIService> logger)
+        {
+            _http   = http;
+            _config = config;
+            _logger = logger;
+
+            // Base address from config; trailing slash required by HttpClient
+            var baseUrl = _config["AIService:BaseUrl"]?.TrimEnd('/') + "/";
+            _http.BaseAddress = new Uri(baseUrl ?? "http://localhost:8000/");
         }
 
-        public async Task<Result<object>> GetPredictionAsync(IFormFile file)
+        // ── Predict ──────────────────────────────────────────────────────────
+
+        public async Task<Result<PredictionResponseDto>> PredictAsync(PredictionRequestDto request)
         {
             try
             {
-                var aiUrl = _configuration["AIService:Url"] ?? "http://localhost:8000/predict";
-                
-                using var content = new MultipartFormDataContent();
-                using var fileStream = file.OpenReadStream();
-                var fileContent = new StreamContent(fileStream);
-                fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-                
-                content.Add(fileContent, "file", file.FileName);
+                _logger.LogInformation(
+                    "Calling FastAPI /predict for disease={Disease}", request.Disease);
 
-                var response = await _httpClient.PostAsync(aiUrl, content);
+                var response = await _http.PostAsJsonAsync("api/v1/predict", request, _jsonOpts);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new Result<object>
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning(
+                        "FastAPI returned {StatusCode}: {Body}",
+                        (int)response.StatusCode, errorBody);
+
+                    var errorType = response.StatusCode switch
                     {
-                        Success = false,
-                        ErrorMessage = $"AI Service Error: {response.ReasonPhrase}",
-                        ErrorType = enErrorType.BadRequest
+                        HttpStatusCode.ServiceUnavailable => enErrorType.BadRequest,
+                        HttpStatusCode.UnprocessableEntity => enErrorType.BadRequest,
+                        _ => enErrorType.InternalServerError,
                     };
+
+                    return Result<PredictionResponseDto>.Fail(
+                        $"AI service error ({(int)response.StatusCode}): {errorBody}",
+                        errorType);
                 }
 
-                var responseString = await response.Content.ReadAsStringAsync();
-                var resultData = JsonConvert.DeserializeObject<object>(responseString);
+                var result = await response.Content
+                    .ReadFromJsonAsync<PredictionResponseDto>(_jsonOpts);
 
-                return new Result<object>
-                {
-                    Success = true,
-                    Data = resultData
-                };
+                _logger.LogInformation(
+                    "Prediction complete: disease={Disease} label={Label} prob={Prob:F4}",
+                    result!.Disease, result.Label, result.Probability);
+
+                return Result<PredictionResponseDto>.Ok(result);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Network error reaching FastAPI service");
+                return Result<PredictionResponseDto>.Fail(
+                    "Unable to reach the AI service. Please try again later.",
+                    enErrorType.InternalServerError);
+            }
+            catch (TaskCanceledException)
+            {
+                _logger.LogWarning("FastAPI request timed out (disease={Disease})", request.Disease);
+                return Result<PredictionResponseDto>.Fail(
+                    "AI service request timed out.",
+                    enErrorType.InternalServerError);
             }
             catch (Exception ex)
             {
-                return new Result<object>
-                {
-                    Success = false,
-                    ErrorMessage = $"Internal error connecting to AI Service: {ex.Message}",
-                    ErrorType = enErrorType.InternalServerError
-                };
+                _logger.LogError(ex, "Unexpected error in AIService.PredictAsync");
+                return Result<PredictionResponseDto>.Fail(
+                    $"Internal error: {ex.Message}",
+                    enErrorType.InternalServerError);
+            }
+        }
+
+        // ── Health ───────────────────────────────────────────────────────────
+
+        public async Task<Result<AIHealthResponseDto>> GetHealthAsync()
+        {
+            try
+            {
+                var response = await _http.GetAsync("api/v1/health");
+                if (!response.IsSuccessStatusCode)
+                    return Result<AIHealthResponseDto>.Fail("AI service is unhealthy.");
+
+                var health = await response.Content
+                    .ReadFromJsonAsync<AIHealthResponseDto>(_jsonOpts);
+
+                return Result<AIHealthResponseDto>.Ok(health);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Health check to FastAPI failed");
+                return Result<AIHealthResponseDto>.Fail(
+                    "AI service health check failed.",
+                    enErrorType.InternalServerError);
             }
         }
     }

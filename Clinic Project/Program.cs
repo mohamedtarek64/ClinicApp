@@ -65,9 +65,14 @@ builder.Services.AddScoped<IPrescriptionMedicationService, PrescriptionMedicatio
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IAdminAccountService, AccountService>();
-builder.Services.AddScoped<IAIService, AIService>();
-
-builder.Services.AddHttpClient<IAIService, AIService>();
+builder.Services.AddHttpClient<IAIService, AIService>(client =>
+{
+    var baseUrl = builder.Configuration["AIService:BaseUrl"] ?? "http://localhost:8000";
+    var timeout = int.TryParse(builder.Configuration["AIService:TimeoutSeconds"], out var t) ? t : 30;
+    client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+    client.Timeout     = TimeSpan.FromSeconds(timeout);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
 
 builder.Services.AddFluentValidationAutoValidation();
