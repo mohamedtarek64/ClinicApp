@@ -22,6 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import get_settings
 from .model_registry import ModelRegistry
 from .routes import router
+from fastapi import Header, HTTPException, status, Depends
 
 # ── Logging ────────────────────────────────────────────────────────────────
 
@@ -86,4 +87,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+async def verify_api_key(x_api_key: str = Header(...)):
+    """Simple API Key validation for security."""
+    if x_api_key != settings.api_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing API Key",
+        )
+
+app.include_router(router, dependencies=[Depends(verify_api_key)])

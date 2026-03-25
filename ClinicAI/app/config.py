@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # .NET backend base URL (used for future cross-service calls if needed)
     backend_url: str = "http://localhost:5001"
 
+    # Security - API Key (Set in .env for production)
+    api_key: str = "clinic_secret_key_2024"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
