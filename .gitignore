@@ -432,4 +432,13 @@ env/
 bin/
 obj/
 
+# Python & AI
+ClinicAI/venv/
+ClinicAI/.env
+ClinicAI/__pycache__/
+models/*.pkl
+test_api.py
+test_dotnet.py
+datasets/
+
 output.txt
