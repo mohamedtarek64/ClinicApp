@@ -22,10 +22,10 @@ services:
       - "8000:8000"
     environment:
       - DEBUG=false
-      - MODELS_DIR=/models
+      - MODELS_DIR=/app/models
     volumes:
-      # Mount the shared models directory (train once from ClinicApp-Ai, serve from here)
-      - ./models:/models:ro
+      # Mount the shared models directory
+      - ./ClinicAI/models:/app/models:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
@@ -33,6 +33,25 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
+
+  # ── C# Backend API ─────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./Clinic Project
+      dockerfile: Dockerfile
+    container_name: clinic-backend
+    ports:
+      - "5001:8080" # ASP.NET Core 8 defaults to 8080 in the container
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # Override appsettings.json ConnectionString to point to the sqlserver container
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ClinicApp;User Id=sa;Password=ClinicApp!Password123;TrustServerCertificate=True
+      # Override AI Service BaseUrl to point to the clinicai container
+      - AIService__BaseUrl=http://clinicai:8000
+    depends_on:
+      - sqlserver
+      - clinicai
+    restart: unless-stopped
 
 volumes:
   mssql-data:
