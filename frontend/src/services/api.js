@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5001/api';
 
-// إنشاء نسخة Axios مجهزة
+// Create configured Axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -10,7 +10,7 @@ const api = axios.create({
   },
 });
 
-// إضافة التوكن تلقائياً لكل الطلبات لو موجود
+// Automatically add Token to all requests if present
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -18,6 +18,19 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Global 401 Unauthorized Error Handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // If token is invalid or expired, clear data and redirect to login
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const authService = {
   login: async (email, password) => {
@@ -41,7 +54,7 @@ export const authService = {
 
   register: async (userData) => {
     try {
-      // تجهيز بيانات الشخص (تحويل الاسم لمصفوفة)
+      // Prepare person data (split name into array)
       const names = userData.username.split(' ');
       const firstName = names[0] || 'Patient';
       const lastName = names.slice(1).join(' ') || 'User';
@@ -50,7 +63,7 @@ export const authService = {
         UserName: userData.username.replace(/\s+/g, ''),
         Email: userData.email,
         Password: userData.password,
-        PhoneNumber: "0123456789", // قيمة افتراضية
+        PhoneNumber: "0123456789", // Default value
         Person: {
           FirstName: firstName,
           LastName: lastName,
@@ -65,6 +78,45 @@ export const authService = {
     } catch (error) {
       console.error("Registration Error:", error.response?.data || error.message);
       throw error.response?.data || "Registration failed.";
+    }
+  },
+
+  registerDoctor: async (userData) => {
+    try {
+      const names = userData.username.split(' ');
+      const firstName = names[0] || 'Dr.';
+      const lastName = names.slice(1).join(' ') || 'Practitioner';
+
+      const payload = {
+        UserName: userData.username.replace(/\s+/g, ''),
+        Email: userData.email,
+        Password: userData.password,
+        PhoneNumber: userData.phone || "0123456789",
+        SpecializationId: userData.specializationId || 1, 
+        Person: {
+          FirstName: firstName,
+          LastName: lastName,
+          DateOfBirth: userData.dob || "1980-01-01",
+          Gender: 0,
+          Address: "Clinic Address"
+        }
+      };
+
+      const response = await api.post('/Accounts/doctors/register', payload);
+      return response.data;
+    } catch (error) {
+      console.error("Doctor Registration Error:", error.response?.data || error.message);
+      throw error.response?.data || "Registration failed.";
+    }
+  },
+
+  updateProfile: async (profileData) => {
+    try {
+      const response = await api.put('/Accounts/profile', profileData);
+      return response.data;
+    } catch (error) {
+      console.error("Update Profile Error:", error.response?.data || error.message);
+      throw error.response?.data || "Update failed.";
     }
   },
 

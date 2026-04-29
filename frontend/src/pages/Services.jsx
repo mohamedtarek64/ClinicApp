@@ -55,7 +55,7 @@ export default function Services() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-white font-sans flex flex-col animate-in fade-in duration-1000">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] font-sans flex flex-col animate-in fade-in duration-1000">
       
       {/* 1. Navigation Bar */}
                   <nav className="sticky top-0 z-[100] bg-[var(--bg-card)]/80 backdrop-blur-2xl border-b-4 border-[var(--text-main)] px-6 md:px-16 py-4">
@@ -72,7 +72,7 @@ export default function Services() {
                       </div>
             
                       <div className="hidden lg:flex items-center gap-12">
-                        {/* التعديل هنا: فكّينا الـ Map عشان نتحكم في كل زرار لوحده ونضيف الـ navigate */}
+                        {/* Navigation update: Buttons are mapped individually for granular control and navigation logic */}
                         <button 
                           onClick={() => navigate('/')}
                           className="font-black uppercase italic text-sm tracking-tighter hover:text-[#0B8ED9] transition-all relative group"   
@@ -208,7 +208,7 @@ export default function Services() {
 
 function ServiceCard({ icon, title, desc, details, tag, highlight, isExpanded, onToggle }) {
   return (
-    <div className={`group p-12 rounded-[4rem] border-4 border-slate-900 transition-all duration-500 shadow-[12px_12px_0px_0px_rgba(15,23,42,1)] ${highlight ? 'bg-[#0B8ED9] text-white' : 'bg-white text-slate-900'}`}>
+    <div className={`group p-12 rounded-[4rem] border-4 border-slate-900 dark:border-white transition-all duration-500 shadow-[12px_12px_0px_0px_rgba(15,23,42,1)] dark:shadow-[12px_12px_0px_0px_white] ${highlight ? 'bg-[#0B8ED9] text-white' : 'bg-[var(--bg-card)] text-[var(--text-main)]'}`}>
       <div className="flex justify-between items-start mb-12">
         <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-4xl border-4 border-slate-900 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] ${highlight ? 'bg-white text-[#0B8ED9]' : 'bg-[#0B8ED9] text-white'}`}>
           {icon}

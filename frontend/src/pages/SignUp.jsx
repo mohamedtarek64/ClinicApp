@@ -78,7 +78,7 @@ export default function SignUp() {
           <h1 className="text-3xl font-black text-[#0B8ED9] tracking-tighter uppercase">HEALIX</h1>
         </div>
 
-        <h2 className="text-2xl font-bold text-black mb-8 text-center">Create Account</h2>
+        <h2 className="text-2xl font-bold text-[var(--text-main)] mb-8 text-center">Create Account</h2>
 
         <form onSubmit={handleSignUp} className="w-full space-y-5">
           
@@ -92,7 +92,7 @@ export default function SignUp() {
                 placeholder="Meky Khaled"
                 value={formData.username}
                 onChange={(e) => setFormData({...formData, username: e.target.value})}
-                className="w-full border-2 border-black rounded-2xl py-4 pl-14 pr-6 text-black font-semibold outline-none focus:border-[#0B8ED9] transition-all placeholder:text-gray-300"
+                className="w-full border-2 border-slate-200 dark:border-white/20 rounded-2xl py-4 pl-14 pr-6 text-[var(--text-main)] font-semibold outline-none focus:border-[#0B8ED9] transition-all placeholder:text-gray-300 bg-white dark:bg-slate-800"
                 required
               />
             </div>

@@ -1,4 +1,4 @@
-﻿using Clinic_Project.Dtos.Account;
+using Clinic_Project.Dtos.Account;
 using Microsoft.AspNetCore.Mvc;
 using Clinic_Project.Services.Interfaces;
 using System.Security.Claims;
@@ -24,7 +24,15 @@ namespace Clinic_Project.Controllers
         {
             var result = await _accountService.RegisterPatientAsync(dto);
             return !result.Success ? BadRequest(result.ErrorMessage) : 
-                Ok(new { Message = "Patient Registered Successfully, Copy the link to confirm your email", ConfirmLink = result.Data});
+                Ok(new { Message = "Patient Registered Successfully", ConfirmLink = result.Data});
+        }
+
+        [HttpPost("doctors/register")]
+        public async Task<IActionResult> RegisterDoctor(RegisterDoctorDto dto)
+        {
+            var result = await _accountService.RegisterDoctorAsync(dto);
+            return !result.Success ? BadRequest(result.ErrorMessage) : 
+                Ok(new { Message = "Doctor Registered Successfully", ConfirmLink = result.Data});
         }
 
         [HttpPost("login")]
@@ -41,6 +49,15 @@ namespace Clinic_Project.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _accountService.GetProfileAsync(userId);
             return !result.Success ? NotFound(result.ErrorMessage) : Ok(result.Data);
+        }
+
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _accountService.UpdateProfileAsync(userId, dto);
+            return !result.Success ? BadRequest(result.ErrorMessage) : Ok(new { Message = "Profile updated successfully" });
         }
 
         [HttpGet("confirm-email")]

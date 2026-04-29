@@ -23,12 +23,21 @@ export default function Login() {
     try {
       const data = await authService.login(email, password);
       
-      // الباك إند بيرجع AccessToken بس ومش بيرجع بيانات اليوزر في الـ Response
-      // التوجيه دلوقتي هيكون مبدئي للصفحة الرئيسية لحد ما نضيف كود يقرأ الـ Role من التوكن نفسه
       if (data && data.accessToken) {
-        navigate("/home"); // أو أي صفحة انت عايزها
-      } else {
-        navigate("/home");
+        // Fetch profile to check roles and name
+        const profile = await authService.getProfile();
+        const role = profile.roles?.[0] || "Patient";
+        const name = profile.userName || profile.email?.split('@')[0];
+        
+        // Save to localStorage so LandingPage and others can see it
+        localStorage.setItem("user_role", role);
+        localStorage.setItem("user_name", name);
+        
+        if (role === "Doctor") {
+          navigate("/doctor-home");
+        } else {
+          navigate("/home");
+        }
       }
     } catch (err) {
       console.error(err);
@@ -39,7 +48,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden text-slate-900">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
       
       {/* Background Elements & Grid */}
       <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#0B8ED9]/10 rounded-full blur-[120px] animate-pulse"></div>

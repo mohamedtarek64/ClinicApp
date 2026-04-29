@@ -5,52 +5,52 @@ import {
   FaVideo, FaCalendarTimes 
 } from "react-icons/fa";
 
-// استيراد الـ Hook بتاع الحجوزات
+// Import Appointments Hook
 import { useAppointments } from "../context/AppointmentContext.js";
 
 export default function Schedule() {
   const navigate = useNavigate();
   const { appointments, cancelAppointment } = useAppointments();
   
-  // حالة الفلتر (Upcoming, Completed, Cancelled)
+  // Filter State (Upcoming, Completed, Cancelled)
   const [activeTab, setActiveTab] = useState("Upcoming");
 
   const tabs = ["Upcoming", "Completed", "Cancelled"];
 
-  // تصفية المواعيد بناءً على التاب النشط
-  // تم تعديلها لاستخدام المتغير 'app' لمنع خطأ ESLint
+  // Filter appointments based on active tab
+  // Modified to use 'app' variable to prevent ESLint errors
   const filteredAppointments = appointments?.filter((app) => {
     if (activeTab === "Upcoming") return !app.isCancelled; 
     if (activeTab === "Cancelled") return app.isCancelled;
-    return false; // للتبويب Completed مستقبلاً
+    return false; // For Completed tab in the future
   });
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B] pb-10 font-sans">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] pb-10 font-sans">
       
       {/* Header */}
-      <header className="p-6 bg-white flex items-center justify-between sticky top-0 z-10 border-b border-gray-100">
+      <header className="p-6 bg-[var(--bg-card)] flex items-center justify-between sticky top-0 z-10 border-b border-[var(--border)]">
         <button 
           onClick={() => navigate(-1)} 
-          className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-600 active:scale-90 transition-transform"
+          className="w-10 h-10 bg-[var(--bg-app)] rounded-xl flex items-center justify-center text-[var(--text-sub)] active:scale-90 transition-transform"
         >
           <FaArrowLeft />
         </button>
-        <h1 className="font-black uppercase tracking-tighter italic text-xl">My Schedule</h1>
+        <h1 className="font-black uppercase tracking-tighter italic text-xl text-[var(--text-main)]">My Schedule</h1>
         <div className="w-10"></div>
       </header>
 
       {/* Tabs */}
       <div className="p-6">
-        <div className="flex bg-gray-100 p-1.5 rounded-[2rem] gap-1 shadow-inner">
+        <div className="flex bg-[var(--bg-app)] p-1.5 rounded-[2rem] gap-1 shadow-inner border border-[var(--border)]">
           {tabs.map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex-1 py-3.5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
                 activeTab === tab 
-                ? 'bg-white text-[#0B8ED9] shadow-md' 
-                : 'text-gray-400 hover:text-gray-600'
+                ? 'bg-[var(--bg-card)] text-[#0B8ED9] shadow-md' 
+                : 'text-[var(--text-sub)] hover:text-[#0B8ED9]'
               }`}
             >
               {tab}
@@ -63,7 +63,7 @@ export default function Schedule() {
       <main className="px-6 space-y-6">
         {filteredAppointments && filteredAppointments.length > 0 ? (
           filteredAppointments.map((app) => (
-            <div key={app.id} className="bg-white rounded-[2.5rem] p-6 border border-gray-100 shadow-sm relative overflow-hidden group transition-all hover:shadow-lg">
+            <div key={app.id} className="bg-[var(--bg-card)] rounded-[2.5rem] p-6 border border-[var(--border)] shadow-sm relative overflow-hidden group transition-all hover:shadow-lg">
               
               {/* Top Info */}
               <div className="flex justify-between items-start mb-6">
@@ -86,7 +86,7 @@ export default function Schedule() {
               </div>
 
               {/* Time & Date Box */}
-              <div className="bg-gray-50 rounded-3xl p-5 flex justify-between items-center mb-6">
+              <div className="bg-[var(--bg-app)] rounded-3xl p-5 flex justify-between items-center mb-6 border border-[var(--border)]">
                 <div className="flex items-center gap-2">
                   <FaCalendarAlt className="text-[#0B8ED9]" size={12} />
                   <span className="text-[11px] font-bold text-slate-600">{app.date}</span>
@@ -122,7 +122,7 @@ export default function Schedule() {
           ))
         ) : (
           <div className="py-24 text-center">
-            <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-dashed border-gray-200 text-gray-200">
+            <div className="w-24 h-24 bg-[var(--bg-card)] rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-dashed border-[var(--border)] text-gray-200">
               <FaCalendarTimes size={40} />
             </div>
             <h3 className="font-black uppercase text-gray-400 text-sm tracking-[0.2em]">No {activeTab} Mates</h3>

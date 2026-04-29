@@ -96,9 +96,9 @@ export default function BookAppointment() {
   const filteredDoctors = selectedSpec === "All" ? doctors : doctors.filter(doc => doc.spec === selectedSpec);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B] pb-10 font-sans relative">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] pb-10 font-sans relative transition-colors duration-300">
       
-      {/* 1. رسالة النجاح */}
+      {/* 1. Success Message */}
       {showSuccess && (
         <div className="fixed inset-0 bg-blue-600 z-[100] flex flex-col items-center justify-center text-white text-center p-6">
           <FaCheckCircle className="text-7xl mb-4 animate-bounce" />
@@ -107,7 +107,7 @@ export default function BookAppointment() {
         </div>
       )}
 
-      {/* 2. مودال تفاصيل الحجز */}
+      {/* 2. Booking Details Modal */}
       {bookingDoc && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-end justify-center">
           <div className="bg-white w-full max-w-xl rounded-t-[3rem] p-8 overflow-y-auto max-h-[90vh] shadow-2xl">
@@ -146,7 +146,7 @@ export default function BookAppointment() {
         </div>
       )}
 
-      {/* 3. بروفايل الدكتور المطور */}
+      {/* 3. Advanced Doctor Profile */}
       {viewingDoc && !bookingDoc && (
         <div className="fixed inset-0 bg-white z-[60] overflow-y-auto animate-in slide-in-from-right duration-300">
           {/* Header */}
@@ -200,7 +200,7 @@ export default function BookAppointment() {
         </div>
       )}
 
-      {/* 4. الواجهة الرئيسية (قائمة الدكاترة) */}
+      {/* 4. Main UI (Doctor List) */}
       <header className="flex items-center justify-between p-6 bg-white/80 backdrop-blur-md border-b sticky top-0 z-10">
         <button onClick={() => navigate("/home")} className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-600"><FaArrowLeft /></button>
         <h1 className="font-black uppercase tracking-tight italic">Find Specialist</h1>
@@ -249,7 +249,7 @@ export default function BookAppointment() {
   );
 }
 
-// Component فرعي للإحصائيات
+// Sub-component for statistics
 function StatItem({ icon, label, value }) {
   return (
     <div className="flex flex-col items-center gap-1">

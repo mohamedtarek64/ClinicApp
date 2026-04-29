@@ -9,7 +9,7 @@ import { authService } from "../services/api";
 export default function PatientProfile() {
   const navigate = useNavigate();
   
-  // بيانات الأطباء المتاحة للبحث (Mock Accounts)
+  // Mock doctor accounts for search demonstration
   const availableDoctors = [
     { name: "Dr. Ahmed Mansour", specialty: "Internal Medicine" },
     { name: "Dr. Sarah Khaled", specialty: "Gastroenterology" },
@@ -18,18 +18,16 @@ export default function PatientProfile() {
     { name: "Dr. Omar Gamal", specialty: "Rheumatology" }
   ];
 
-  const [userData, setUserData] = useState(() => {
-    const saved = localStorage.getItem("patient_full_data");
-    const basicUser = JSON.parse(localStorage.getItem("user") || "{}");
-    return saved ? JSON.parse(saved) : {
-      username: basicUser.username || "Meky",
-      bloodType: "A+",
+  const [userData, setUserData] = useState({
+      username: "Patient User",
+      email: "",
+      bloodType: "Not Set",
       allergies: "None",
-      insuranceId: "HLX-" + Math.floor(10000 + Math.random() * 90000),
-      weight: "75",
-      height: "175",
-      profileImg: null
-    };
+      insuranceId: "HLX-PENDING",
+      weight: "0",
+      height: "0",
+      profileImg: null,
+      phone: ""
   });
 
   const [medicalRecords, setMedicalRecords] = useState(() => {
@@ -44,6 +42,12 @@ export default function PatientProfile() {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      
       setLoading(true);
       try {
         const profile = await authService.getProfile();
@@ -58,12 +62,16 @@ export default function PatientProfile() {
         }));
       } catch (err) {
         console.error("Failed to fetch real profile:", err);
+        if (err.status === 401 || err.toString().includes('401')) {
+          localStorage.clear();
+          navigate('/login');
+        }
       } finally {
         setLoading(false);
       }
     };
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     localStorage.setItem("patient_full_data", JSON.stringify(userData));
@@ -93,7 +101,7 @@ export default function PatientProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 p-6 md:p-16 transition-colors duration-500 font-sans">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] p-6 md:p-16 transition-colors duration-500 font-sans">
       
       {/* --- Dynamic Modal System --- */}
       {activeModal && (
@@ -254,7 +262,7 @@ export default function PatientProfile() {
           <div className="relative group">
             <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="profilePic" />
             <label htmlFor="profilePic" className="cursor-pointer block relative">
-              <div className="w-32 h-32 md:w-44 md:h-44 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem] border-[6px] border-slate-900 dark:border-white overflow-hidden shadow-[12px_12px_0px_0px_#2563eb]">
+              <div className="w-32 h-32 md:w-44 md:h-44 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem] border-[6px] border-[var(--text-main)] dark:border-white overflow-hidden shadow-[12px_12px_0px_0px_#2563eb]">
                 {userData.profileImg ? <img src={userData.profileImg} alt="Profile" className="w-full h-full object-cover transition-transform group-hover:scale-110" /> : <div className="w-full h-full flex items-center justify-center text-slate-400"><FaCamera size={40} /></div>}
               </div>
               <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-3 rounded-xl border-4 border-white dark:border-slate-950 group-hover:scale-110 transition-transform"><FaCamera size={14} /></div>
@@ -264,11 +272,11 @@ export default function PatientProfile() {
 
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-12 lg:col-span-7 space-y-8">
-            <div className="bg-white dark:bg-slate-900 border-[6px] border-slate-900 dark:border-white p-10 rounded-[3.5rem] shadow-[20px_20px_0px_0px_#0B8ED9] relative overflow-hidden">
+            <div className="bg-[var(--bg-card)] dark:bg-slate-900 border-[6px] border-[var(--text-main)] dark:border-white p-10 rounded-[3.5rem] shadow-[20px_20px_0px_0px_#0B8ED9] relative overflow-hidden">
               <div className="absolute top-[-20px] right-[-20px] text-[12rem] text-slate-50 dark:text-slate-800 font-black -z-0 opacity-40 italic select-none">ID</div>
               <div className="relative z-10 space-y-10">
                 <div className="flex justify-between items-start">
-                   <div className="w-20 h-20 bg-slate-900 dark:bg-blue-600 rounded-[2rem] flex items-center justify-center text-white text-3xl shadow-xl"><FaIdCard /></div>
+                   <div className="w-20 h-20 bg-[#0B8ED9] dark:bg-blue-600 rounded-[2rem] flex items-center justify-center text-white text-3xl shadow-xl"><FaIdCard /></div>
                    <div className="text-right">
                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Patient-UID</p>
                      <p className="font-mono font-bold dark:text-white uppercase text-xl">{userData.insuranceId}</p>
@@ -346,7 +354,7 @@ function StatBox({ label, value, unit }) {
 function EnhancedActionBtn({ icon, title, sub, color, onClick }) {
   const isBlue = color === 'blue';
   return (
-    <button onClick={onClick} className={`w-full group p-6 rounded-[2.5rem] border-4 border-slate-900 dark:border-white flex items-center justify-between transition-all hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_#2563eb] ${isBlue ? 'bg-blue-600 text-white border-blue-700' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'}`}>
+    <button onClick={onClick} className={`w-full group p-6 rounded-[2.5rem] border-4 border-[var(--text-main)] dark:border-white flex items-center justify-between transition-all hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_#2563eb] ${isBlue ? 'bg-blue-600 text-white border-blue-700' : 'bg-[var(--bg-card)] dark:bg-slate-900 text-[var(--text-main)]'}`}>
       <div className="flex items-center gap-5">
         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-transform group-hover:rotate-12 ${isBlue ? 'bg-white/20' : 'bg-slate-100 dark:bg-slate-800 text-blue-600'}`}>{icon}</div>
         <div className="text-left">

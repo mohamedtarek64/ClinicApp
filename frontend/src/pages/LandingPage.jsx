@@ -4,17 +4,34 @@ import {
   FaCheckCircle, FaUserMd, FaHospital, FaStethoscope, FaMicroscope,
   FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram, FaEnvelope
 } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
 import fullLogo from "../assets/full logo update.jpg";
 import doctorsBg from "../assets/doctors-team.jpg"; 
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('user_role');
+    if (token) {
+      setIsLoggedIn(true);
+      setUserRole(role);
+    }
+  }, []);
+
+  const handleDashboardRedirect = () => {
+    if (userRole === "Doctor") navigate("/doctor-home");
+    else navigate("/home");
+  };
 
   return (
     <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] font-sans selection:bg-[#0B8ED9] selection:text-white overflow-x-hidden">
       
-      {/* 1. Navigation Bar - التعديل هنا لضمان نزولها مع الـ Scroll */}
+      {/* 1. Navigation Bar */}
       <nav className="fixed top-0 left-0 w-full z-[100] bg-[var(--bg-card)]/80 backdrop-blur-2xl border-b-4 border-[var(--text-main)] px-6 md:px-16 py-4">
         <div className="max-w-[1920px] mx-auto flex justify-between items-center">
           <div className="flex items-center group cursor-pointer" onClick={() => navigate('/')}>
@@ -29,49 +46,31 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden lg:flex items-center gap-12">
-            <button 
-              onClick={() => navigate('/')}
-              className="font-black uppercase italic text-sm tracking-tighter text-[#0B8ED9] relative group"
-            >
-              Home
-              <span className="absolute -bottom-1 left-0 w-full h-1.5 bg-[#0B8ED9] rounded-full"></span>
-            </button>
-
-            <button 
-              onClick={() => navigate('/about')}
-              className="font-black uppercase italic text-sm tracking-tighter hover:text-[#0B8ED9] transition-all relative group"
-            >
-              About
-              <span className="absolute -bottom-1 left-0 w-0 h-1.5 bg-[#0B8ED9] transition-all group-hover:w-full rounded-full"></span>
-            </button>
-
-            <button 
-              onClick={() => navigate('/services')}
-              className="font-black uppercase italic text-sm tracking-tighter hover:text-[#0B8ED9] transition-all relative group"
-            >
-              Services
-              <span className="absolute -bottom-1 left-0 w-0 h-1.5 bg-[#0B8ED9] transition-all group-hover:w-full rounded-full"></span>
-            </button>
-
-            <button 
-              onClick={() => navigate('/contact')}
-              className="font-black uppercase italic text-sm tracking-tighter hover:text-[#0B8ED9] transition-all relative group"
-            >
-              Contact
-              <span className="absolute -bottom-1 left-0 w-0 h-1.5 bg-[#0B8ED9] transition-all group-hover:w-full rounded-full"></span>
-            </button>
+            <button onClick={() => navigate('/')} className="font-black uppercase italic text-sm tracking-tighter text-[#0B8ED9] relative group">Home <span className="absolute -bottom-1 left-0 w-full h-1.5 bg-[#0B8ED9] rounded-full"></span></button>
+            <button onClick={() => navigate('/about')} className="font-black uppercase italic text-sm tracking-tighter hover:text-[#0B8ED9] transition-all relative group">About <span className="absolute -bottom-1 left-0 w-0 h-1.5 bg-[#0B8ED9] transition-all group-hover:w-full rounded-full"></span></button>
+            <button onClick={() => navigate('/services')} className="font-black uppercase italic text-sm tracking-tighter hover:text-[#0B8ED9] transition-all relative group">Services <span className="absolute -bottom-1 left-0 w-0 h-1.5 bg-[#0B8ED9] transition-all group-hover:w-full rounded-full"></span></button>
+            <button onClick={() => navigate('/contact')} className="font-black uppercase italic text-sm tracking-tighter hover:text-[#0B8ED9] transition-all relative group">Contact <span className="absolute -bottom-1 left-0 w-0 h-1.5 bg-[#0B8ED9] transition-all group-hover:w-full rounded-full"></span></button>
           </div>
 
-          <button 
-            onClick={() => navigate('/login')}
-            className="bg-[#0B8ED9] text-white px-10 py-3 rounded-xl font-black uppercase italic text-sm border-2 border-[var(--text-main)] shadow-[5px_5px_0px_0px_var(--text-main)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all active:scale-95"
-          >
-            Login
-          </button>
+          {isLoggedIn ? (
+            <button 
+              onClick={handleDashboardRedirect}
+              className="bg-slate-900 text-white px-8 py-3 rounded-xl font-black uppercase italic text-sm border-2 border-[var(--text-main)] shadow-[5px_5px_0px_0px_#0B8ED9] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all active:scale-95"
+            >
+              Dashboard
+            </button>
+          ) : (
+            <button 
+              onClick={() => navigate('/login')}
+              className="bg-[#0B8ED9] text-white px-10 py-3 rounded-xl font-black uppercase italic text-sm border-2 border-[var(--text-main)] shadow-[5px_5px_0px_0px_var(--text-main)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all active:scale-95"
+            >
+              Login
+            </button>
+          )}
         </div>
       </nav>
 
-      {/* Hero Section - اضفنا pt-24 عشان الكونتنت ميبقاش مستخبي تحت الـ Fixed Nav */}
+      {/* Hero Section - Added pt-24 to prevent content from being hidden under Fixed Nav */}
       <main className="pt-24 md:pt-32">
         <section className="relative min-h-[95vh] flex items-center overflow-hidden border-b-8 border-[var(--text-main)] bg-[var(--bg-card)]">
           <div 
@@ -82,7 +81,7 @@ export default function LandingPage() {
 
           <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 grid lg:grid-cols-5 items-center gap-12 py-20">
             <div className="lg:col-span-3 space-y-10">
-              <div className="inline-flex items-center gap-3 bg-white text-[var(--text-main)] border-2 border-[var(--text-main)] px-6 py-2 rounded-full font-black uppercase italic text-[10px] md:text-xs shadow-[4px_4px_0px_0px_#0B8ED9]">
+              <div className="inline-flex items-center gap-3 bg-[var(--bg-card)] text-[var(--text-main)] border-2 border-[var(--text-main)] px-6 py-2 rounded-full font-black uppercase italic text-[10px] md:text-xs shadow-[4px_4px_0px_0px_#0B8ED9]">
                 <FaStethoscope className="text-[#0B8ED9] animate-bounce" /> Next-Gen AI Medicine
               </div>
               <h1 className="text-6xl md:text-[9.5rem] font-black uppercase italic leading-[0.75] tracking-[-0.06em] text-[var(--text-main)]">
@@ -97,10 +96,10 @@ export default function LandingPage() {
                 // Healix is not just a clinic; it's an ecosystem of <span className="text-[#0B8ED9]">intelligent diagnostics</span> and premium care.
               </p>
               <button 
-                onClick={() => navigate('/login')}
+                onClick={isLoggedIn ? handleDashboardRedirect : () => navigate('/login')}
                 className="group bg-[var(--text-main)] text-white px-12 py-7 rounded-[2rem] font-black uppercase italic text-xl shadow-[12px_12px_0px_0px_#0B8ED9] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all flex items-center gap-4"
               >
-                Start Journey <FaArrowRight className="group-hover:translate-x-3 transition-transform" />
+                {isLoggedIn ? "Enter Dashboard" : "Start Journey"} <FaArrowRight className="group-hover:translate-x-3 transition-transform" />
               </button>
             </div>
 
@@ -114,7 +113,7 @@ export default function LandingPage() {
 
         {/* 3. Info Cards */}
         <section className="px-6 md:px-12 -mt-24 relative z-20">
-          <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 border-4 border-[var(--text-main)] rounded-[3.5rem] overflow-hidden shadow-[25px_25px_0px_0px_var(--text-main)] bg-white">
+          <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 border-4 border-[var(--text-main)] rounded-[3.5rem] overflow-hidden shadow-[25px_25px_0px_0px_var(--text-main)] bg-[var(--bg-card)]">
             <EnhancedInfoCard icon={<FaPhoneAlt />} title="Emergency" detail="122" primary />
             <EnhancedInfoCard icon={<FaMapMarkerAlt />} title="location" detail="6th October, Giza" />
             <EnhancedInfoCard icon={<FaAmbulance />} title="Ambulance" detail="123" primary />
@@ -185,16 +184,16 @@ export default function LandingPage() {
 // Components
 function FloatingBadge({ icon, text, delay }) {
   return (
-    <div style={{ animationDelay: delay }} className="bg-white border-4 border-[var(--text-main)] p-6 rounded-2xl shadow-[8px_8px_0px_0px_#0B8ED9] flex items-center gap-4 animate-bounce-slow hover:scale-110 transition-transform cursor-default">
+    <div style={{ animationDelay: delay }} className="bg-[var(--bg-card)] border-4 border-[var(--text-main)] p-6 rounded-2xl shadow-[8px_8px_0px_0px_#0B8ED9] flex items-center gap-4 animate-bounce-slow hover:scale-110 transition-transform cursor-default">
       <div className="text-3xl text-[#0B8ED9]">{icon}</div>
-      <span className="font-black uppercase italic text-sm">{text}</span>
+      <span className="font-black uppercase italic text-sm text-[var(--text-main)]">{text}</span>
     </div>
   );
 }
 
 function EnhancedInfoCard({ icon, title, detail, primary }) {
   return (
-    <div className={`relative p-12 md:p-16 flex flex-col items-center lg:items-start gap-8 group transition-all duration-500 ${primary ? 'bg-[#0B8ED9] text-white' : 'bg-white text-[var(--text-main)]'} lg:border-r-4 border-b-4 lg:border-b-0 border-[var(--text-main)] last:border-0`}>
+    <div className={`relative p-12 md:p-16 flex flex-col items-center lg:items-start gap-8 group transition-all duration-500 ${primary ? 'bg-[#0B8ED9] text-white' : 'bg-[var(--bg-card)] text-[var(--text-main)]'} lg:border-r-4 border-b-4 lg:border-b-0 border-[var(--text-main)] last:border-0`}>
       <div className={`w-24 h-24 rounded-3xl flex items-center justify-center text-4xl border-4 border-[var(--text-main)] shadow-[8px_8px_0px_0px_var(--text-main)] transition-all duration-500 group-hover:-rotate-12 ${primary ? 'bg-white text-[#0B8ED9]' : 'bg-[#0B8ED9] text-white'}`}>
         {icon}
       </div>
@@ -208,7 +207,7 @@ function EnhancedInfoCard({ icon, title, detail, primary }) {
 
 function SocialIcon({ icon }) {
   return (
-    <div className="w-10 h-10 bg-white border-2 border-[var(--text-main)] flex items-center justify-center rounded-lg shadow-[3px_3px_0px_0px_var(--text-main)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer text-[var(--text-main)] hover:text-[#0B8ED9]">
+    <div className="w-10 h-10 bg-[var(--bg-card)] border-2 border-[var(--text-main)] flex items-center justify-center rounded-lg shadow-[3px_3px_0px_0px_var(--text-main)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer text-[var(--text-main)] hover:text-[#0B8ED9]">
       {icon}
     </div>
   );

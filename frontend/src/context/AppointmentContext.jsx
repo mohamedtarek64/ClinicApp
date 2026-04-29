@@ -6,14 +6,14 @@ export function AppointmentProvider({ children }) {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // جلب المواعيد الحقيقية من السيرفر
+  // Fetch real appointments from the server
   const refreshAppointments = async () => {
     setLoading(true);
     try {
       const profile = await authService.getProfile();
       if (profile.patientId) {
         const data = await appointmentService.getPatientAppointments(profile.patientId);
-        // تحويل البيانات من شكل السيرفر لشكل الفرونت إند
+        // Transform server data to frontend structure
         const mapped = data.map(app => ({
           id: app.id,
           doctorName: `Dr. ${app.doctorFirstName} ${app.doctorLastName}`,
@@ -41,14 +41,14 @@ export function AppointmentProvider({ children }) {
   }, []);
 
   const addAppointment = (appointment) => {
-    // إضافته محلياً فوراً للسرعة، ثم التحديث من السيرفر
+    // Update locally immediately for UI responsiveness, then sync with server if needed
     setAppointments((prev) => [appointment, ...prev]);
     refreshAppointments(); 
   };
 
   const cancelAppointment = async (id) => {
     try {
-      // هنا المفروض نكلم API الكنسلة لو موجود، حالياً هنكتفي بالمسح المحلي
+      // Call cancellation API here if available, currently just local update
       setAppointments((prev) => prev.filter((app) => app.id !== id));
     } catch (err) {
       console.error(err);

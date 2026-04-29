@@ -39,6 +39,10 @@ namespace Clinic_Project.Services.Implementations
             // Base address from config; trailing slash required by HttpClient
             var baseUrl = _config["AIService:BaseUrl"]?.TrimEnd('/') + "/";
             _http.BaseAddress = new Uri(baseUrl ?? "http://localhost:8000/");
+
+            // Add Security Header for FastAPI AI service
+            var apiKey = _config["AIService:ApiKey"] ?? "clinic_secret_key_2024";
+            _http.DefaultRequestHeaders.Add("x-api-key", apiKey);
         }
 
         // ── Predict ──────────────────────────────────────────────────────────

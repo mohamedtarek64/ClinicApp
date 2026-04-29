@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { authService } from "../services/api";
 import {
   FaArrowLeft,
   FaUserMd,
@@ -29,7 +30,7 @@ export default function DoctorSignUp() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.password !== formData.verifyPassword) {
@@ -37,25 +38,20 @@ export default function DoctorSignUp() {
       return;
     }
 
-    // --- الربط مع الـ LocalStorage يا هندسة ---
-    
-    // 1. تجهيز بيانات الدكتور الجديد
-    const newDoctor = {
-      username: formData.username,
-      email: formData.email,
-      license: formData.licenseNumber,
-      dob: formData.dob,
-      password: formData.password,
-      role: "doctor" // عشان نفرق بينهم في اللوجين
-    };
+    try {
+      await authService.registerDoctor({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        dob: formData.dob,
+        specializationId: parseInt(formData.specializationId || "1")
+      });
 
-    // 2. تخزين البيانات في مخزن الدكاترة
-    localStorage.setItem("registeredDoctor", JSON.stringify(newDoctor));
-
-    // ---------------------------------------
-
-    alert("Practitioner Account Created Successfully! Click OK to go to Login.");
-    navigate("/login");
+      alert("Practitioner Account Created Successfully! Please Login.");
+      navigate("/login");
+    } catch (err) {
+      alert("Registration failed: " + (err.message || "Server error"));
+    }
   };
 
   return (
@@ -133,18 +129,37 @@ export default function DoctorSignUp() {
               </div>
             </div>
 
-            {/* Date of Birth */}
-            <div className="group">
-              <label className="block mb-1.5 text-sm font-bold text-gray-700 ml-1 uppercase">Date of Birth</label>
-              <div className="relative">
-                <FaCalendarAlt className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B8ED9]" />
-                <input
-                  type="date"
-                  name="dob"
-                  required
-                  className="w-full py-3.5 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:bg-white transition-all shadow-sm font-semibold"
-                  onChange={handleChange}
-                />
+            {/* Specialization & Date of Birth */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="group">
+                <label className="block mb-1.5 text-sm font-bold text-gray-700 ml-1 uppercase text-[11px]">Specialization</label>
+                <div className="relative">
+                  <FaUserMd className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B8ED9]" />
+                  <select
+                    name="specializationId"
+                    required
+                    className="w-full py-3.5 pl-11 pr-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all shadow-sm font-semibold appearance-none"
+                    onChange={handleChange}
+                  >
+                    <option value="1">Cardiology</option>
+                    <option value="2">Pediatrics</option>
+                    <option value="3">Neurology</option>
+                    <option value="4">Internal Medicine</option>
+                  </select>
+                </div>
+              </div>
+              <div className="group">
+                <label className="block mb-1.5 text-sm font-bold text-gray-700 ml-1 uppercase text-[11px]">Date of Birth</label>
+                <div className="relative">
+                  <FaCalendarAlt className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0B8ED9]" />
+                  <input
+                    type="date"
+                    name="dob"
+                    required
+                    className="w-full py-3.5 pl-11 pr-4 bg-gray-50 border border-gray-200 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all shadow-sm font-semibold text-gray-500"
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
             </div>
 

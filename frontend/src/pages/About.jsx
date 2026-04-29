@@ -10,7 +10,7 @@ export default function About() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-white font-sans flex flex-col animate-in fade-in duration-1000">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] font-sans flex flex-col animate-in fade-in duration-1000">
       
       {/* 1. Navigation Bar */}
             <nav className="sticky top-0 z-[100] bg-[var(--bg-card)]/80 backdrop-blur-2xl border-b-4 border-[var(--text-main)] px-6 md:px-16 py-4">
@@ -27,7 +27,7 @@ export default function About() {
                 </div>
       
                 <div className="hidden lg:flex items-center gap-12">
-                  {/* التعديل هنا: فكّينا الـ Map عشان نتحكم في كل زرار لوحده ونضيف الـ navigate */}
+                  {/* Navigation update: Buttons are mapped individually for granular control and navigation logic */}
                   <button 
                     onClick={() => navigate('/')}
                     className="font-black uppercase italic text-sm tracking-tighter hover:text-[#0B8ED9] transition-all relative group"   
@@ -108,7 +108,7 @@ export default function About() {
         </section>
 
         {/* Technical Showcase Section */}
-        <section className="bg-slate-900 py-32 relative overflow-hidden border-y-8 border-slate-900">
+        <section className="bg-[#0B8ED9] dark:bg-slate-900 py-32 relative overflow-hidden border-y-8 border-[var(--text-main)] dark:border-white">
           <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-10">
               <h2 className="text-6xl md:text-8xl font-black italic text-white uppercase tracking-tighter leading-none">
@@ -124,7 +124,7 @@ export default function About() {
               <div className="aspect-square bg-[#0B8ED9]/20 rounded-[4rem] border-4 border-[#0B8ED9] flex items-center justify-center backdrop-blur-3xl group transition-all duration-700 hover:rotate-3 shadow-[20px_20px_0px_0px_#0B8ED9]">
                  <FaMicroscope className="text-[#0B8ED9] text-9xl group-hover:scale-110 transition-transform" />
                  <div className="absolute -bottom-10 -right-10 p-10 bg-white rounded-[3rem] shadow-2xl border-4 border-slate-900">
-                    <p className="text-4xl font-black italic text-slate-900">V3.1</p>
+                    <p className="text-4xl font-black italic text-[var(--text-main)]">V3.1</p>
                     <p className="text-[10px] font-black uppercase text-[#0B8ED9] tracking-widest">Stable Release</p>
                  </div>
               </div>
@@ -132,9 +132,9 @@ export default function About() {
           </div>
         </section>
 
-        {/* 3. Emergency & Location Cards - تم إلغاء الـ Negative Margin والـ Translate لضمان الظهور بالكامل */}
+        {/* 3. Emergency & Location Cards */}
         <section className="px-6 md:px-12 py-32 relative z-20">
-          <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 border-4 border-slate-900 rounded-[3.5rem] overflow-hidden shadow-[25px_25px_0px_0px_rgba(15,23,42,1)] bg-white">
+          <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 border-4 border-[var(--text-main)] dark:border-white rounded-[3.5rem] overflow-hidden shadow-[25px_25px_0px_0px_rgba(15,23,42,0.1)] dark:shadow-[25px_25px_0px_0px_rgba(255,255,255,0.1)] bg-[var(--bg-card)]">
             <EnhancedInfoCard icon={<FaPhoneAlt />} title="Emergency" detail="122" primary />
             <EnhancedInfoCard icon={<FaMapMarkerAlt />} title="location" detail="6th October, Giza" />
             <EnhancedInfoCard icon={<FaAmbulance />} title="Ambulance" detail="123" primary />
@@ -145,7 +145,7 @@ export default function About() {
       {/* 4. Professional Mega Footer */}
       <footer className="bg-white dark:bg-slate-900 border-t-8 border-slate-900 dark:border-white pt-24 pb-10">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-          {/* محتوى الـ Footer المعتاد */}
+          {/* Standard Footer content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
             <div className="space-y-6">
               <img src={fullLogo} alt="Logo" className="h-16 w-auto rounded-xl border-2 border-slate-900 dark:border-white shadow-[4px_4px_0px_0px_#0B8ED9]" />
@@ -198,7 +198,7 @@ export default function About() {
   );
 }
 
-// --- الهيلبرز (نفسهم بدون تغيير) ---
+// --- Helpers (unchanged) ---
 function NavLink({ label, active, onClick }) {
   return (
     <button onClick={onClick} className={`text-[10px] font-black uppercase tracking-[0.3em] transition-all relative py-2 ${active ? 'text-slate-900 dark:text-white' : 'text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}>
@@ -210,8 +210,8 @@ function NavLink({ label, active, onClick }) {
 
 function ValueCard({ icon, title, desc, active }) {
   return (
-    <div className={`p-12 rounded-[4rem] border-4 border-slate-900 transition-all duration-500 shadow-[12px_12px_0px_0px_rgba(15,23,42,1)] ${active ? 'bg-[#0B8ED9] text-white' : 'bg-white text-slate-900'}`}>
-      <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-4xl mb-12 border-4 border-slate-900 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] ${active ? 'bg-white text-[#0B8ED9]' : 'bg-[#0B8ED9] text-white'}`}>
+    <div className={`p-12 rounded-[4rem] border-4 border-[var(--text-main)] dark:border-white transition-all duration-500 shadow-[12px_12px_0px_0px_rgba(15,23,42,0.1)] dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,0.1)] ${active ? 'bg-[#0B8ED9] text-white border-[#0B8ED9]' : 'bg-[var(--bg-card)] text-[var(--text-main)]'}`}>
+      <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-4xl mb-12 border-4 border-[var(--text-main)] dark:border-white shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] ${active ? 'bg-white text-[#0B8ED9]' : 'bg-[#0B8ED9] text-white'}`}>
         {icon}
       </div>
       <h3 className="text-4xl font-black uppercase italic tracking-tighter mb-6 leading-none">{title}</h3>
@@ -222,7 +222,7 @@ function ValueCard({ icon, title, desc, active }) {
 
 function EnhancedInfoCard({ icon, title, detail, primary }) {
   return (
-    <div className={`relative p-12 md:p-16 flex flex-col items-center lg:items-start gap-8 group transition-all duration-500 ${primary ? 'bg-[#0B8ED9] text-white' : 'bg-white text-slate-900'} lg:border-r-4 border-b-4 lg:border-b-0 border-slate-900 last:border-0`}>
+    <div className={`relative p-12 md:p-16 flex flex-col items-center lg:items-start gap-8 group transition-all duration-500 ${primary ? 'bg-[#0B8ED9] text-white border-[#0B8ED9]' : 'bg-[var(--bg-card)] text-[var(--text-main)]'} lg:border-r-4 border-b-4 lg:border-b-0 border-[var(--text-main)] dark:border-white last:border-0`}>
       <div className={`w-24 h-24 rounded-3xl flex items-center justify-center text-4xl border-4 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] transition-all duration-500 group-hover:-rotate-12 ${primary ? 'bg-white text-[#0B8ED9]' : 'bg-[#0B8ED9] text-white'}`}>
         {icon}
       </div>

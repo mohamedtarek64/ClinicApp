@@ -108,8 +108,68 @@ namespace Clinic_Project.Services.Implementations
 
         }
 
+        public async Task<Result<string>> RegisterDoctorAsync(RegisterDoctorDto dto)
+        {
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var person = new Person()
+                {
+                    FirstName = dto.Person.FirstName,
+                    LastName = dto.Person.LastName,
+                    DateOfBirth = dto.Person.DateOfBirth,
+                    Gender = dto.Person.Gender,
+                    Email = dto.Email,
+                    Phone = dto.PhoneNumber,
+                    Address = dto.Person.Address
+                };
+
+                var doctor = new Doctor() 
+                { 
+                    Person = person,
+                    SpecializationId = dto.SpecializationId
+                };
+
+                await _unitOfWork.Doctors.AddAsync(doctor);
+                await _unitOfWork.CommitChangesAsync();
+
+                var appUser = new AppUser()
+                {
+                    UserName = dto.UserName,
+                    Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    PersonId = person.Id
+                };
+
+                var result = await _userManager.CreateAsync(appUser, dto.Password);
+
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description).ToList());
+                    await transaction.RollbackAsync();
+                    return Result<string>.Fail(errors, enErrorType.BadRequest);
+                }
+
+                await _userManager.AddToRoleAsync(appUser, RoleName.Doctor);
+
+                // For simplicity, we auto-confirm doctors or generate link
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+                var confirmLink = $"{_configuration["AppUrl"]}/api/account/confirm-email?userId={appUser.Id}&token={Uri.EscapeDataString(token)}";
+
+                await transaction.CommitAsync();
+
+                return Result<string>.Ok(confirmLink);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return Result<string>.Fail(ex.Message, enErrorType.BadRequest);
+            }
+        }
+
         public async Task<Result<IdentityResult?>> AddDoctorAsync(RegisterDto dto)
         {
+            // Existing legacy method, keeping for compatibility
             using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -363,9 +423,38 @@ namespace Clinic_Project.Services.Implementations
             return Result<string>.Ok("Password has been reset successfully.");
         }
 
+        public async Task<Result<bool>> UpdateProfileAsync(string userId, UpdateProfileDto dto)
+        {
+            var user = await _userManager.Users.Include(u => u.Person).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return Result<bool>.Fail("User not found", enErrorType.NotFound);
+
+            if (dto.PhoneNumber != null) user.PhoneNumber = dto.PhoneNumber;
+            
+            if (user.Person != null)
+            {
+                if (dto.FirstName != null) user.Person.FirstName = dto.FirstName;
+                if (dto.LastName != null) user.Person.LastName = dto.LastName;
+                if (dto.DateOfBirth.HasValue) user.Person.DateOfBirth = dto.DateOfBirth.Value;
+                if (dto.Gender.HasValue) user.Person.Gender = (Clinic_Project.Dtos.Person.enGender)dto.Gender.Value;
+                if (dto.Address != null) user.Person.Address = dto.Address;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description).ToList());
+                return Result<bool>.Fail(errors, enErrorType.BadRequest);
+            }
+
+            return Result<bool>.Ok(true);
+        }
+
         public async Task<Result<AccountDto>> GetProfileAsync(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.Users
+                .Include(u => u.Person)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
             if (user is null)
                 return Result<AccountDto>.Fail("User not found", enErrorType.NotFound);
 
@@ -377,7 +466,7 @@ namespace Clinic_Project.Services.Implementations
                 UserName = user.UserName,
                 Email = user.Email,
                 Phone = user.PhoneNumber,
-                Gender = user.Person.Gender,
+                Gender = user.Person?.Gender,
                 Roles = roles.ToList()
             };
 

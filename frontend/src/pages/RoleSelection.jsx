@@ -5,12 +5,12 @@ import fullLogo from "../assets/full logo update.jpg";
 export default function RoleSelection() {
     const navigate = useNavigate();
 
-    // دالة للتعامل مع اختيار الدور
+    // Handle role selection logic
     const handleRoleSelect = (role) => {
-        // بنخزن الدور المختار (patient أو doctor) عشان صفحة الـ Login تعرف تفرّق بينهم
+        // Store selected role (patient or doctor) for Login page differentiation
         localStorage.setItem("selectedRole", role);
         
-        // التوجيه للصفحة المناسبة بناءً على الاختيار
+        // Redirect to appropriate page based on choice
         if (role === "patient") {
             navigate("/signup");
         } else {
@@ -19,10 +19,10 @@ export default function RoleSelection() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 transition-all duration-300">
-            <div className="bg-white w-full max-w-[500px] p-10 rounded-[2.5rem] shadow-2xl shadow-blue-100/50 border border-gray-100">
+        <div className="min-h-screen bg-[var(--bg-app)] flex items-center justify-center px-4 transition-all duration-300">
+            <div className="bg-[var(--bg-card)] w-full max-w-[500px] p-10 rounded-[2.5rem] shadow-2xl shadow-blue-100/50 border border-[var(--border)]">
 
-                {/* Header مع زر الرجوع */}
+                {/* Header with Back button */}
                 <div className="relative mb-8">
                     <button 
                         onClick={() => navigate("/")} 
@@ -43,7 +43,7 @@ export default function RoleSelection() {
                 <div className="flex flex-col sm:flex-row gap-5 justify-center">
                     {/* Patient Card */}
                     <button
-                        onClick={() => handleRoleSelect("patient")} // التعديل هنا
+                        onClick={() => handleRoleSelect("patient")} // Selection update
                         className="flex-1 group relative flex flex-col items-center justify-center p-8 border-2 border-gray-100 rounded-[2rem] bg-white hover:border-[#0B8ED9] hover:bg-blue-50/30 transition-all duration-500 shadow-sm hover:shadow-xl hover:-translate-y-2"
                     >
                         <div className="w-16 h-16 bg-blue-100 text-[#0B8ED9] rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#0B8ED9] group-hover:text-white transition-all duration-500">
@@ -55,7 +55,7 @@ export default function RoleSelection() {
 
                     {/* Doctor Card */}
                     <button
-                        onClick={() => handleRoleSelect("doctor")} // التعديل هنا
+                        onClick={() => handleRoleSelect("doctor")} // Selection update
                         className="flex-1 group relative flex flex-col items-center justify-center p-8 border-2 border-gray-100 rounded-[2rem] bg-white hover:border-[#0B8ED9] hover:bg-blue-50/30 transition-all duration-500 shadow-sm hover:shadow-xl hover:-translate-y-2"
                     >
                         <div className="w-16 h-16 bg-blue-100 text-[#0B8ED9] rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#0B8ED9] group-hover:text-white transition-all duration-500">

@@ -10,11 +10,11 @@
 }
 
 .dark {
-  --bg-app: #0B1120; /* كحلي غامق جداً زي خلفية صورتك */
-  --bg-card: #1E293B; /* لون الكروت في الـ Dark Mode */
+  --bg-app: #0F172A; /* Slate 900 - Primary Color */
+  --bg-card: #0F172A; /* Unified card and background color as requested */
   --text-main: #F8FAFC;
   --text-sub: #94A3B8;
-  --border: #334155;
-  --input-bg: #334155;
+  --border: #1E293B; /* Slightly lighter border for distinction */
+  --input-bg: #1E293B;
   color-scheme: dark;
 }

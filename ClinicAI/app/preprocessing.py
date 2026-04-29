@@ -62,7 +62,10 @@ def preprocess(raw: dict, disease: str) -> pd.DataFrame:
     if disease == "kidney":
         for col in df.select_dtypes("object").columns:
             df[col] = df[col].apply(_fix_value)
-        for col in ["pcv", "wc", "rc"]:
+        
+        # Ensure ALL kidney features that should be numeric are actually numeric
+        numeric_cols = ["age", "bp", "sg", "al", "su", "bgr", "bu", "sc", "sod", "pot", "hemo", "pcv", "wc", "rc"]
+        for col in numeric_cols:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
 

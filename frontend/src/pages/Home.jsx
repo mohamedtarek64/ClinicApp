@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   FaBell, FaSearch, FaHome, FaHistory, FaCalendarAlt, 
@@ -10,26 +10,42 @@ import {
 } from "react-icons/fa";
 
 import { useAppointments } from "../context/AppointmentContext.js"; 
+import { authService } from "../services/api";
 import fullLogo from "../assets/full logo update.jpg";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { appointments, cancelAppointment } = useAppointments();
+  const [user, setUser] = useState({ username: "User", email: "" });
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const { appointments, cancelAppointment, refreshAppointments } = useAppointments();
   
   const [searchQuery, setSearchQuery] = useState("");
 
-  const userName = useMemo(() => {
-    const saved = localStorage.getItem("user");
-    try {
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return parsed.username || parsed.email?.split('@')[0] || "User";
+  useEffect(() => {
+    const fetchRealData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoadingProfile(false);
+        return;
       }
-      return "User";
-    } catch {
-      return "User";
-    }
+
+      try {
+        const profile = await authService.getProfile();
+        setUser({
+          username: profile.userName || profile.email?.split('@')[0],
+          email: profile.email
+        });
+        refreshAppointments();
+      } catch (err) {
+        console.error("Home: Failed to fetch profile", err);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+    fetchRealData();
   }, []);
+
+  const userName = user.username;
 
   const displayedAppointments = useMemo(() => 
     appointments?.filter(app => 
@@ -38,7 +54,7 @@ export default function Home() {
   , [appointments, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-white font-sans flex flex-col animate-in fade-in duration-1000 selection:bg-blue-500 selection:text-white transition-colors duration-500">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] font-sans flex flex-col animate-in fade-in duration-1000 selection:bg-blue-500 selection:text-white transition-colors duration-500">
       
       {/* Background Elements */}
       <div className="fixed top-[-10%] right-[-5%] w-[600px] h-[600px] bg-blue-100/30 dark:bg-blue-900/10 blur-[140px] rounded-full -z-10 animate-pulse" />
@@ -56,7 +72,7 @@ export default function Home() {
             />
             <div className="hidden lg:flex items-center gap-6 bg-slate-100/50 dark:bg-slate-800/50 p-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-700/50">
               <NavLink label="Dashboard" active onClick={() => navigate('/home')} />
-              <NavLink label="Analytics" onClick={() => navigate('/history')} />
+              <NavLink label="Analysis" onClick={() => navigate('/new-analysis')} />
               <NavLink label="Schedule" onClick={() => navigate('/schedule')} />
               <NavLink label="Contact" onClick={() => navigate('/contact')} icon={<FaHeadset className="mr-1 text-[10px]" />} />
             </div>
@@ -97,7 +113,7 @@ export default function Home() {
             </div>
             <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter text-slate-900 dark:text-white leading-[0.8] uppercase">
               Welcome, 
-              {/* التعديل هنا: إضافة حدث onClick وتنسيقات hover */}
+              {/* Update: Added onClick event and hover styles */}
               <span 
                 onClick={() => navigate('/patient-profile')} 
                 className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 not-italic cursor-pointer hover:opacity-80 transition-all ml-4 relative group/name"
@@ -202,13 +218,13 @@ export default function Home() {
             <div className="space-y-10">
               <h4 className="font-black uppercase italic text-xl text-slate-900 dark:text-white border-b-4 border-[#0B8ED9] w-fit pb-1">SUPPORT</h4>
               <ul className="space-y-5">
-                <li className="flex items-center gap-3 text-slate-900 dark:text-white text-[11px] font-black uppercase tracking-widest italic group">
+                <li className="flex items-center gap-3 text-[var(--text-main)] text-[11px] font-black uppercase tracking-widest italic group">
                   <FaEnvelope className="text-[#0B8ED9] group-hover:scale-125 transition-transform" /> SUPPORT@HEALIX.AI
                 </li>
-                <li className="flex items-center gap-3 text-slate-900 dark:text-white text-[11px] font-black uppercase tracking-widest italic group">
+                <li className="flex items-center gap-3 text-[var(--text-main)] text-[11px] font-black uppercase tracking-widest italic group">
                   <FaPhone className="text-[#0B8ED9] group-hover:rotate-12 transition-transform" /> +20 100 000 000
                 </li>
-                <li className="flex items-center gap-3 text-slate-900 dark:text-white text-[11px] font-black uppercase tracking-widest italic group">
+                <li className="flex items-center gap-3 text-[var(--text-main)] text-[11px] font-black uppercase tracking-widest italic group">
                   <FaMapMarkerAlt className="text-[#0B8ED9] group-hover:bounce" /> GIZA, EGYPT
                 </li>
               </ul>
@@ -262,16 +278,16 @@ function AppointmentCard({ app, onCancel }) {
            {app.doctorImg ? <img src={app.doctorImg} className="w-full h-full object-cover" /> : <FaUserCircle size={45} />}
         </div>
         <div>
-          <h3 className="font-black uppercase italic text-2xl text-slate-900 dark:text-white leading-none mb-2">{app.doctorName}</h3>
+          <h3 className="font-black uppercase italic text-2xl text-[var(--text-main)] leading-none mb-2">{app.doctorName}</h3>
           <p className="text-[10px] font-black uppercase text-blue-500 tracking-[0.2em]">{app.spec}</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-slate-50 dark:bg-slate-800/50 py-4 rounded-3xl flex flex-col items-center justify-center border border-slate-100/50 dark:border-slate-700">
-          <FaCalendarAlt className="text-blue-500 mb-2" size={14} /><span className="font-black text-[10px] uppercase text-slate-900 dark:text-white">{app.date}</span>
+          <FaCalendarAlt className="text-blue-500 mb-2" size={14} /><span className="font-black text-[10px] uppercase text-[var(--text-main)]">{app.date}</span>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800/50 py-4 rounded-3xl flex flex-col items-center justify-center border border-slate-100/50 dark:border-slate-700">
-          <FaClock className="text-blue-500 mb-2" size={14} /><span className="font-black text-[10px] uppercase text-slate-900 dark:text-white">{app.time}</span>
+          <FaClock className="text-blue-500 mb-2" size={14} /><span className="font-black text-[10px] uppercase text-[var(--text-main)]">{app.time}</span>
         </div>
       </div>
     </div>
@@ -281,9 +297,9 @@ function AppointmentCard({ app, onCancel }) {
 function ToolButton({ icon, title, color }) {
     const isBlue = color === 'blue';
     return (
-      <button className={`w-full flex items-center justify-between p-6 rounded-[2rem] transition-all group border-2 ${isBlue ? 'bg-blue-600 border-blue-500 text-white shadow-xl' : 'bg-white/5 dark:bg-slate-800/20 border-white/5 dark:border-slate-700 text-white hover:bg-white/10'}`}>
+      <button className={`w-full flex items-center justify-between p-6 rounded-[2rem] transition-all group border-2 ${isBlue ? 'bg-blue-600 border-blue-500 text-white shadow-xl' : 'bg-slate-50 dark:bg-slate-800/20 border-slate-100 dark:border-slate-700 text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-white/10'}`}>
         <div className="flex items-center gap-5">
-          <div className={`p-4 rounded-2xl ${isBlue ? 'bg-white/20' : 'bg-white/5 dark:bg-slate-700'}`}>{icon}</div>
+          <div className={`p-4 rounded-2xl ${isBlue ? 'bg-white/20' : 'bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-400'}`}>{icon}</div>
           <span className="font-black uppercase italic text-[11px] tracking-widest">{title}</span>
         </div>
         <FaArrowRight className="size-3 opacity-20 group-hover:translate-x-2 group-hover:opacity-100 transition-all" />
@@ -293,9 +309,9 @@ function ToolButton({ icon, title, color }) {
 
 function FooterInfoBlock({ title, detail, light }) {
     return (
-      <div className={`flex flex-col items-center justify-center py-14 px-6 border-r border-white/5 transition-all duration-700 cursor-default group ${light ? 'bg-white !text-slate-900' : 'text-white hover:bg-slate-900'}`}>
+      <div className={`flex flex-col items-center justify-center py-14 px-6 border-r border-slate-100 dark:border-white/5 transition-all duration-700 cursor-default group ${light ? 'bg-white text-slate-900' : 'bg-slate-50 dark:bg-transparent text-[var(--text-main)] hover:bg-slate-100'}`}>
         <h3 className="text-4xl font-black italic uppercase tracking-tighter mb-3 group-hover:scale-110 transition-transform">{title}</h3>
-        <p className={`text-xs font-black uppercase tracking-[0.2em] ${light ? 'text-slate-400' : 'text-white/60'}`}>{detail}</p>
+        <p className={`text-xs font-black uppercase tracking-[0.2em] ${light ? 'text-slate-400' : 'text-[var(--text-sub)]'}`}>{detail}</p>
       </div>
     );
 }
