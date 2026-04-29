@@ -46,7 +46,7 @@ async def health(request: Request) -> HealthResponse:
     summary="Disease prediction",
     tags=["Prediction"],
 )
-async def predict(body: PredictionRequest, request: Request) -> PredictionResponse:
+def predict(body: PredictionRequest, request: Request) -> PredictionResponse:
     """
     Predict the probability of **diabetes**, **heart disease**, or **kidney disease**.
 

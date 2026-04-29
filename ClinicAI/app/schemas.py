@@ -7,8 +7,15 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
+# ── Feature Definitions ──────────────────────────────────────────────────
+
+REQUIRED_FEATURES = {
+    "diabetes": {"HbA1c_level", "blood_glucose_level", "age", "bmi", "smoking_history", "hypertension", "gender", "heart_disease"},
+    "kidney": {"age", "bp", "sg", "al", "su", "rbc", "pc", "pcc", "ba", "bgr", "bu", "sc", "sod", "pot", "hemo", "pcv", "wc", "rc", "htn", "dm", "cad", "appet", "pe", "ane"},
+    "heart": {"State", "Sex", "GeneralHealth", "PhysicalHealthDays", "MentalHealthDays", "LastCheckupTime", "PhysicalActivities", "SleepHours", "RemovedTeeth", "HadAngina", "HadStroke", "HadAsthma", "HadSkinCancer", "HadCOPD", "HadDepressiveDisorder", "HadKidneyDisease", "HadArthritis", "HadDiabetes", "DeafOrHardOfHearing", "BlindOrVisionDifficulty", "DifficultyConcentrating", "DifficultyWalking", "DifficultyDressingBathing", "DifficultyErrands", "SmokerStatus", "ECigaretteUsage", "ChestScan", "RaceEthnicityCategory", "AgeCategory", "HeightInMeters", "WeightInKilograms", "BMI", "AlcoholDrinkers", "HIVTesting", "FluVaxLast12", "PneumoVaxEver", "TetanusLast10Tdap", "HighRiskLastYear", "CovidPos"}
+}
 
 # ── Enums ─────────────────────────────────────────────────────────────────
 
@@ -17,13 +24,11 @@ class DiseaseType(str, Enum):
     heart    = "heart"
     kidney   = "kidney"
 
-
 class RiskLevel(str, Enum):
     low       = "low"
     moderate  = "moderate"
     high      = "high"
     very_high = "very_high"
-
 
 # ── Prediction request ─────────────────────────────────────────────────────
 
@@ -33,6 +38,27 @@ class PredictionRequest(BaseModel):
         ...,
         description="Patient feature key-value pairs. Keys depend on disease type.",
     )
+
+    @model_validator(mode="after")
+    def validate_features(self) -> "PredictionRequest":
+        disease_name = self.disease.value
+        provided_keys = set(self.data.keys())
+        required_keys = REQUIRED_FEATURES.get(disease_name, set())
+        
+        missing = required_keys - provided_keys
+        if missing:
+            raise ValueError(f"Missing required data fields for {disease_name}: {sorted(missing)}")
+            
+        # Security/Validation: Prevent illogical parameters like negative age
+        if "age" in self.data:
+            try:
+                age_val = float(self.data["age"])
+                if age_val < 0 or age_val > 120:
+                    raise ValueError(f"Invalid 'age' provided: {age_val}. Must be 0-120.")
+            except (ValueError, TypeError):
+                pass # let it pass to preprocessing if it's text
+                
+        return self
 
     model_config = {
         "json_schema_extra": {
@@ -66,6 +92,28 @@ class PredictionRequest(BaseModel):
                             "pcv": 44.0, "wc": 7800.0, "rc": 5.2,
                             "htn": "no", "dm": "no", "cad": "no",
                             "appet": "good", "pe": "no", "ane": "no",
+                        },
+                    },
+                },
+                {
+                    "summary": "Heart example (14 features)",
+                    "value": {
+                        "disease": "heart",
+                        "data": {
+                            "HadAngina": "No",
+                            "ChestScan": "No",
+                            "HadStroke": "No",
+                            "DifficultyWalking": "No",
+                            "HadDiabetes": "No",
+                            "GeneralHealth": "Very good",
+                            "HadArthritis": "No",
+                            "PneumoVaxEver": "Yes",
+                            "RemovedTeeth": "None of them",
+                            "AgeCategory": "Age 65 to 69",
+                            "SmokerStatus": "Never smoked",
+                            "BMI": 27.99,
+                            "HadKidneyDisease": "No",
+                            "HadCOPD": "No"
                         },
                     },
                 },

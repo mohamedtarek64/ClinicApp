@@ -16,10 +16,16 @@ DISEASE_FEATURES: dict[str, list[str]] = {
         "smoking_history", "hypertension", "gender", "heart_disease",
     ],
     "heart": [
-        "HadAngina", "ChestScan", "HadStroke", "DifficultyWalking",
-        "HadDiabetes", "GeneralHealth", "HadArthritis", "PneumoVaxEver",
-        "RemovedTeeth", "AgeCategory", "SmokerStatus", "BMI",
-        "HadKidneyDisease", "HadCOPD",
+        "State", "Sex", "GeneralHealth", "PhysicalHealthDays", "MentalHealthDays",
+        "LastCheckupTime", "PhysicalActivities", "SleepHours", "RemovedTeeth",
+        "HadAngina", "HadStroke", "HadAsthma", "HadSkinCancer", "HadCOPD",
+        "HadDepressiveDisorder", "HadKidneyDisease", "HadArthritis", "HadDiabetes",
+        "DeafOrHardOfHearing", "BlindOrVisionDifficulty", "DifficultyConcentrating",
+        "DifficultyWalking", "DifficultyDressingBathing", "DifficultyErrands",
+        "SmokerStatus", "ECigaretteUsage", "ChestScan", "RaceEthnicityCategory",
+        "AgeCategory", "HeightInMeters", "WeightInKilograms", "BMI",
+        "AlcoholDrinkers", "HIVTesting", "FluVaxLast12", "PneumoVaxEver",
+        "TetanusLast10Tdap", "HighRiskLastYear", "CovidPos"
     ],
     "kidney": [
         "age", "bp", "sg", "al", "su",
