@@ -1,4 +1,4 @@
-﻿using Clinic_Project.Dtos.Account;
+using Clinic_Project.Dtos.Account;
 using Clinic_Project.Helpers;
 using Clinic_Project.Models;
 using Clinic_Project.Repositories.Interfaces;
@@ -377,8 +377,20 @@ namespace Clinic_Project.Services.Implementations
                 UserName = user.UserName,
                 Email = user.Email,
                 Phone = user.PhoneNumber,
+                Gender = user.Person.Gender,
                 Roles = roles.ToList()
             };
+
+            if (roles.Contains(RoleName.Patient))
+            {
+                var patient = await _unitOfWork.Patients.GetOneAsync(p => p.PersonId == user.PersonId);
+                accountDto.PatientId = patient?.Id;
+            }
+            else if (roles.Contains(RoleName.Doctor))
+            {
+                var doctor = await _unitOfWork.Doctors.GetOneAsync(d => d.PersonId == user.PersonId);
+                accountDto.DoctorId = doctor?.Id;
+            }
 
             return Result<AccountDto>.Ok(accountDto);
         }        

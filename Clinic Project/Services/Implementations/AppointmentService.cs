@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Clinic_Project.Dtos.Appointment;
 using Clinic_Project.Helpers;
 using Clinic_Project.Models;
