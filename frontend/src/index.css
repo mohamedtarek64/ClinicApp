@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  --bg-app: #F8FAFC;
+  --bg-card: #ffffff;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --border: #f1f5f9;
+  --input-bg: #F1F5F9;
+}
+
+.dark {
+  --bg-app: #0B1120; /* كحلي غامق جداً زي خلفية صورتك */
+  --bg-card: #1E293B; /* لون الكروت في الـ Dark Mode */
+  --text-main: #F8FAFC;
+  --text-sub: #94A3B8;
+  --border: #334155;
+  --input-bg: #334155;
+  color-scheme: dark;
+}
