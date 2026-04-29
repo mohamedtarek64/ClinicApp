@@ -103,6 +103,9 @@ using (var scope = app.Services.CreateScope())
 
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    var dbContext = services.GetRequiredService<AppDbContext>();
+
+    await dbContext.Database.EnsureCreatedAsync();
 
     await Seed.SeedRolesAsync(roleManager);
     await Seed.SeedAdminAsync(userManager);
