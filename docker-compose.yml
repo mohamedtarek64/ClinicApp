@@ -5,7 +5,7 @@ services:
     container_name: sqlserver_db
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Clinic_Secret_Pass_2024!
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-Clinic_Secret_Pass_2024!}
     ports:
       - "1433:1433"
     healthcheck:
@@ -26,7 +26,7 @@ services:
     environment:
       - DEBUG=False
       - APP_NAME=ClinicAI-Production
-      - API_KEY=clinic_secret_key_2024
+      - API_KEY=${API_KEY:-clinic_secret_key_2024}
     volumes:
       - ./ClinicAI/models:/app/models # Mount models directory
     restart: always
